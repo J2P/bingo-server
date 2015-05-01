@@ -1,0 +1,24 @@
+{
+  "name": "react-bingo-server",
+  "version": "0.0.1",
+  "description": "Bingo Game Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/J2P/react-bingo-server.git"
+  },
+  "author": "J2P",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/J2P/react-bingo-server/issues"
+  },
+  "homepage": "https://github.com/J2P/react-bingo-server#readme",
+  "dependencies": {
+    "express": "^4.12.3",
+    "socket.io": "^1.3.5"
+  }
+}
