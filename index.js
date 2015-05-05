@@ -18,10 +18,11 @@ io.on('connection', function(socket){
   socket.on('send:number', function(data) {
     for (var user in users) {
       users[user]['board'] = util.setSelectNumbers(users[user]['board'], data.number);
+      users[user]['lines'] = util.checkLines(users[user]['board']);
     }
     
-    socket.emit('change:number', { users: users });  
-  	socket.broadcast.emit('change:number', { users: users });
+    socket.emit('select:number', { users: users });  
+  	socket.broadcast.emit('select:number', { users: users });
   });
 });
 
