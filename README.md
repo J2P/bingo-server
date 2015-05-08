@@ -1,4 +1,4 @@
-# Bingo Game Server
+# Bingo Game Server [![Build Status](https://travis-ci.org/J2P/react-bingo-server.svg?branch=master)](https://travis-ci.org/J2P/react-bingo-server)
 
 ## Installation
 
