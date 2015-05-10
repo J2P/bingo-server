@@ -1,6 +1,4 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')();
 var util = require('./util.js');
 var users = {};
 var colors = ['blue', 'green', 'red', 'orange', 'purple'];
@@ -26,6 +24,4 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
-});
+io.listen(3000);
