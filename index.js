@@ -1,6 +1,6 @@
 var io = require('socket.io')();
-var util = require('./util.js');
 var uuid = require('node-uuid');
+var util = require('./lib/util.js');
 var users = {};
 var colors = ['blue', 'green', 'red', 'orange', 'purple'];
 
