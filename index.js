@@ -1,16 +1,20 @@
 var io = require('socket.io')();
 var util = require('./util.js');
+var uuid = require('node-uuid');
 var users = {};
 var colors = ['blue', 'green', 'red', 'orange', 'purple'];
 
 io.on('connection', function(socket){
   socket.on('join', function(data) {
-    users[data.user] = {
-      board: util.getRandomNumbers(),
-      color: colors.splice(Math.floor(Math.random() * colors.length), 1)[0]
+    var id = uuid.v4();
+    users[id] = {
+      id: id,
+      board: util.getRandomBoard(),
+      color: util.getRandomColor(colors)
     };
 
-    socket.emit('init', users[data.user]);
+    socket.emit('init', users[id]);
+    socket.broadcast.emit('update:user', { users: users });
   });
 
   socket.on('send:number', function(data) {
