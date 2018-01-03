@@ -1,31 +1,33 @@
-var io = require('socket.io')();
-var uuid = require('node-uuid');
-var util = require('./lib/util.js');
+var io = require("socket.io")();
+var uuid = require("node-uuid");
+var util = require("./lib/util.js");
 var users = {};
-var colors = ['blue', 'green', 'red', 'orange', 'purple'];
 
-io.on('connection', function(socket){
-  socket.on('join', function(data) {
+io.on("connection", function(socket) {
+  socket.on("join", function(data) {
     var id = uuid.v4();
     users[id] = {
       id: id,
       board: util.getRandomBoard(),
-      color: util.getRandomColor(colors)
+      color: util.getRandomColor()
     };
 
-    socket.emit('init', users[id]);
-    socket.broadcast.emit('update:user', { users: users });
+    socket.emit("init", users[id]);
+    socket.broadcast.emit("update:user", { users: users });
   });
 
-  socket.on('send:number', function(data) {
+  socket.on("send:number", function(data) {
     for (var user in users) {
-      users[user]['board'] = util.setSelectNumbers(users[user]['board'], data.number);
-      users[user]['lines'] = util.checkLines(users[user]['board']);
+      users[user]["board"] = util.setSelectNumbers(
+        users[user]["board"],
+        data.number
+      );
+      users[user]["lines"] = util.checkLines(users[user]["board"]);
     }
-    
-    socket.emit('select:number', { users: users });  
-  	socket.broadcast.emit('select:number', { users: users });
+
+    socket.emit("select:number", { users: users });
+    socket.broadcast.emit("select:number", { users: users });
   });
 });
 
-io.listen(3000);
+io.listen(4000);
