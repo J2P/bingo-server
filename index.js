@@ -1,11 +1,11 @@
 var io = require("socket.io")();
-var uuid = require("node-uuid");
+var uuidv4 = require("uuid/v4");
 var util = require("./lib/util.js");
 var users = {};
 
 io.on("connection", function(socket) {
   socket.on("join", function(data) {
-    var id = uuid.v4();
+    var id = uuidv4();
     users[id] = {
       id: id,
       board: util.getRandomBoard(),
