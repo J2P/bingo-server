@@ -1,64 +1,78 @@
-const express = require('express');
-const http = require('http');
-const socketIO = require("socket.io");
-const util = require("./lib/util.js");
-let users = {};
-let roomNumber = 0;
+const app = require('express')();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+const utils = require('./lib/utils');
 
 const port = 4000;
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+const rooms = [];
 
 io.on("connection", (socket) => {
   const id = socket.id;
-  const rooms = io.sockets.adapter.rooms;
-  let isJoin = false;
-  let roomName = '';
+
+  socket.on('join room', () => {
+    const lastRoom = rooms[rooms.length - 1];
+    // 방이 하나도 없는 경우 또는 마지막 방에 인원이 꽉 찬경우 새로운 방을 만든다.
+    if (rooms.length === 0 || lastRoom.users.length === 2) {
+      const ROOM_NAME = `room${rooms.length}`;
+      socket.join(ROOM_NAME, () => {
+        const users = [];
+        users.push({ 
+          id,
+          board: utils.getRandomBoard(),
+          color: utils.getRandomColor(),
+          lines: []
+        });
+        const room = { name: ROOM_NAME, users };
+        rooms.push(room);
+    
+        io.to(ROOM_NAME).emit('join room', room);
+      });
+    } else {
+      // 마지막 방에 사람이 1명이면
+      const lastRoom = rooms[rooms.length - 1];
+      const ROOM_NAME = lastRoom.name;
+
+      socket.join(ROOM_NAME, () => {
+        const room = rooms.filter(room => room.name === ROOM_NAME);
+        const users = room[0].users;
+        const user = users.filter(user => user.id === id);
+        if (user.length === 0) {
+          room[0].users.push({ 
+            id,
+            board: utils.getRandomBoard(),
+            color: utils.getRandomColor(),
+            lines: []
+          });
+        }
   
-  if (util.roomCount(rooms) === 0) {
-    roomName = `room${roomNumber}`;
-    socket.join(roomName);
-  } else {
-    for (room in rooms) {
-      if (room.indexOf("room") === 0 && rooms[room].length < 2) {
-        roomName = room;
-        socket.join(roomName);
-        isJoin = true;
-      }
+        io.to(ROOM_NAME).emit('join room', room[0]);
+      });
     }
 
-    if (!isJoin) {
-      roomName = `room${++roomNumber}`;
-      socket.join(roomName);
-    }
-  }
+    socket.on('send:number', (id, number, name) => {
+      const room = rooms.filter(room => room.name === name)[0];
+      const users = room.users;
 
-  users[id] = {
-    id: id,
-    board: util.getRandomBoard(),
-    color: util.getRandomColor(),
-    roomName: roomName
-  };
-  console.log(users[id]);
-  socket.emit('init', users[id]);
-
-  socket.on('disconnect', function() {
-    console.log('user disconnect');
+      users.map(user => {
+        const board = utils.setSelectNumbers(user.board, number);
+        const lines = utils.checkLines(user.board);
+        user.board = board;
+        user.lines = lines;
+      });
+  
+      io.to(name).emit('select:number', users);
+    });
   });
 
-  socket.on('send:number', function(data) {
-    for (user in rooms[data.roomName].sockets) {
-      users[user]['board'] = util.setSelectNumbers(
-        users[user]['board'],
-        data.number
-      );
-      users[user]['lines'] = util.checkLines(users[user]['board']);
-    }
-
-    socket.emit('select:number', { users: users });
-    io.sockets.in(data.roomName).emit('select:number', { users: users });
+  socket.on('disconnect', () => {
+    // rooms.forEach(room => {
+    //   console.log('disconnect >>>>', room);
+    //   const index = room.users.findIndex(user => user.id === socket.id);
+    //   console.log("index", index)
+    //   index > -1 && room.users.splice(index, 1);
+    // });
+    console.log('user disconnect');
   });
 });
 
-server.listen(port, () => console.log(`Listening on port ${port}`))
+http.listen(port, () => console.log(`Listening on port ${port}`))
