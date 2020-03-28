@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
 
       users.map(user => {
         const board = utils.setSelectNumbers(user.board, number);
-        const lines = utils.checkLines(user.board);
+        const lines = utils.checkLines(board);
         user.board = board;
         user.lines = lines;
       });
