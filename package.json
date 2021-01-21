@@ -20,7 +20,7 @@
   "homepage": "https://github.com/J2P/react-bingo-server#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
